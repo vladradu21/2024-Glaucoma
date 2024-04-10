@@ -17,16 +17,16 @@ from utils import (
 LEARNING_RATE = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 32
-NUM_EPOCHS = 10
+NUM_EPOCHS = 60
 NUM_WORKERS = 2
 IMAGE_HEIGHT = 256
 IMAGE_WIDTH = 256
 PIN_MEMORY = True
-LOAD_MODEL = True
-TRAIN_IMG_DIR = "../../datasets/refuge/train/image/"
-TRAIN_MASK_DIR = "../../datasets/refuge/train/cup/"
-VAL_IMG_DIR = "../../datasets/refuge/valid/image/"
-VAL_MASK_DIR = "../../datasets/refuge/valid/cup/"
+LOAD_MODEL = False
+TRAIN_IMG_DIR = "../../datasets/refuge2/train/images/"
+TRAIN_MASK_DIR = "../../datasets/refuge2/train/mask/"
+VAL_IMG_DIR = "../../datasets/refuge2/valid/images/"
+VAL_MASK_DIR = "../../datasets/refuge2/valid/mask/"
 
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
@@ -34,7 +34,7 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
 
     for batch_idx, (data, targets) in enumerate(loop):
         data = data.to(device=DEVICE)
-        targets = targets.float().unsqueeze(1).to(device=DEVICE)
+        targets = targets.long().to(device=DEVICE)
 
         # forward
         with torch.cuda.amp.autocast():
@@ -79,8 +79,8 @@ def main():
         ]
     )
 
-    model = UNET(in_channels=3, out_channels=1).to(DEVICE)
-    loss_fn = nn.BCEWithLogitsLoss()
+    model = UNET(in_channels=3, out_channels=3).to(DEVICE)
+    loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     train_loader, val_loader = get_loaders(
