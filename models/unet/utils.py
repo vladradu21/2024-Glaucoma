@@ -78,6 +78,25 @@ def check_accuracy(loader, model, device="cuda"):
     model.train()
 
 
+COLOR_MAP = {
+    0: (0.0, 0.0, 0.0),  # negru
+    1: (0.5, 0.5, 0.5),  # gri
+    2: (1.0, 1.0, 1.0),  # alb
+}
+
+
+def apply_color_map(preds, num_classes=3):
+    # Predicțiile vin sub forma [batch_size, 1, H, W] și au valori [0, 1, 2]
+    batch_size, _, H, W = preds.shape
+    output = torch.zeros(batch_size, 3, H, W, device=preds.device)  # Asigură-te că output-ul este pe device-ul corect
+    for i in range(num_classes):
+        mask = preds == i
+        # Asigură-te că și color este pe device-ul corect
+        color = torch.tensor(COLOR_MAP[i], device=preds.device).view(1, 3, 1, 1)
+        output += mask.float() * color
+    return output
+
+
 def save_predictions_as_imgs(loader, model, folder="../../out/", device="cuda"):
     model.eval()
     for idx, (x, y) in enumerate(loader):
@@ -86,10 +105,9 @@ def save_predictions_as_imgs(loader, model, folder="../../out/", device="cuda"):
             preds = model(x)
             preds = torch.argmax(preds, dim=1).unsqueeze(1)
 
-        preds_normalized = preds.float() / 2.0
-        y_normalized = y.unsqueeze(1).float() / 2.0
+        preds_color = apply_color_map(preds)
+        true_color = apply_color_map(y.unsqueeze(1))
 
-        # Save images
-        torchvision.utils.save_image(preds_normalized, f"{folder}/pred_{idx}_pred.png")
-        torchvision.utils.save_image(y_normalized, f"{folder}/pred_{idx}_true.png")
+        torchvision.utils.save_image(preds_color, f"{folder}/pred_{idx}_pred.png")
+        torchvision.utils.save_image(true_color, f"{folder}/pred_{idx}_true.png")
     model.train()
