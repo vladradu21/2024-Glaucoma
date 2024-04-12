@@ -16,11 +16,11 @@ from utils import (
 # Hyperparameters etc.
 LEARNING_RATE = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 32
-NUM_EPOCHS = 60
+BATCH_SIZE = 16
+NUM_EPOCHS = 50
 NUM_WORKERS = 2
-IMAGE_HEIGHT = 256
-IMAGE_WIDTH = 256
+IMAGE_HEIGHT = 512
+IMAGE_WIDTH = 512
 PIN_MEMORY = True
 LOAD_MODEL = False
 TRAIN_IMG_DIR = "../../datasets/refuge2/train/images/"
