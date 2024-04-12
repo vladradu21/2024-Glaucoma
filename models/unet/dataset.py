@@ -1,9 +1,9 @@
 import os
 
+import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
-import numpy as np
 
 
 class GlaucomaDataset(Dataset):
@@ -36,4 +36,3 @@ class GlaucomaDataset(Dataset):
             mask = torch.from_numpy(mask).long()
 
         return image, mask
-    

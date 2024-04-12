@@ -1,9 +1,10 @@
-import torch
 import albumentations as A
-from albumentations.pytorch import ToTensorV2
-from tqdm import tqdm
+import torch
 import torch.nn as nn
 import torch.optim as optim
+from albumentations.pytorch import ToTensorV2
+from tqdm import tqdm
+
 from model import UNET
 from utils import (
     load_checkpoint,
@@ -100,6 +101,7 @@ def main():
 
     # check accuracy
     check_accuracy(val_loader, model, device=DEVICE)
+    model.train()
     scaler = torch.cuda.amp.GradScaler()
 
     for epoch in range(NUM_EPOCHS):
@@ -115,9 +117,10 @@ def main():
 
         # check accuracy
         check_accuracy(val_loader, model, device=DEVICE)
+        model.train()
 
         # print examples
-        save_predictions_as_imgs(val_loader, model, folder="../../out/", device=DEVICE)
+        save_predictions_as_imgs(val_loader, model, folder="../../out/", mode="valid", device=DEVICE)
 
 
 if __name__ == "__main__":
