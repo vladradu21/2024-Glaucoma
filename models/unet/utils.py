@@ -96,7 +96,7 @@ def apply_color_map(preds, num_classes=3):
     return output
 
 
-def save_predictions_as_imgs(loader, model, folder="../../out/", mode="valid", device="cuda"):
+def save_predictions_as_imgs(loader, model, folder="../../out/valid/", mode="valid", device="cuda"):
     model.eval()
     for idx, (x, y) in enumerate(loader):
         x = x.to(device)

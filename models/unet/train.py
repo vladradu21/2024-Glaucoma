@@ -120,7 +120,7 @@ def main():
         model.train()
 
         # print examples
-        save_predictions_as_imgs(val_loader, model, folder="../../out/", mode="valid", device=DEVICE)
+        save_predictions_as_imgs(val_loader, model, folder="../../out/valid/", mode="valid", device=DEVICE)
 
 
 if __name__ == "__main__":

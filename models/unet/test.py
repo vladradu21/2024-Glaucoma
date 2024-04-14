@@ -20,7 +20,7 @@ TEST_MASK_DIR = "../../datasets/refuge2/test/mask/"
 
 def test_fn(loader, model):
     check_accuracy(loader, model, device=DEVICE)
-    save_predictions_as_imgs(loader, model, folder="../../out/", mode="test", device=DEVICE)
+    save_predictions_as_imgs(loader, model, folder="../../out/test/", mode="test", device=DEVICE)
 
 
 def main():
