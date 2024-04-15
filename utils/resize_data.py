@@ -1,141 +1,60 @@
+from PIL import Image
 import os
-from glob import glob
-from pathlib import Path
-
-import cv2
-import imageio
-import numpy as np
-from sklearn.model_selection import train_test_split
-from tqdm import tqdm
+import glob
 
 SIZE = (512, 512)
 
 dataset_configurations = {
-    "RIM_ONE": {
-        "healthy": {
-            "images": "healthy/stereo images/*.jpg",
-            "cup_masks": "healthy/average_masks/*Cup*.png",
-            "disc_masks": "healthy/average_masks/*Disc*.png"
+    "refuge2": {
+        "test": {
+            "images": "*.jpg",
+            "mask": "*.bmp"
         },
-        "glaucoma": {
-            "images": "Glaucoma and suspects/stereo images/*.jpg",
-            "cup_masks": "Glaucoma and suspects/average_masks/*Cup*.png",
-            "disc_masks": "Glaucoma and suspects/average_masks/*Disc*.png"
-        }
-    },
-    "DRISHTI_GS": {
-        "healthy": {
-            "images": "normal/images/*.png",
-            "cup_masks": "normal/GT/*/SoftMap/*cup*.png",
-            "disc_masks": "normal/GT/*/SoftMap/*OD*.png"
+        "train": {
+            "images": "*.jpg",
+            "mask": "*.bmp"
         },
-        "glaucoma": {
-            "images": "glaucoma/images/*.png",
-            "cup_masks": "glaucoma/GT/*/SoftMap/*cup*.png",
-            "disc_masks": "glaucoma/GT/*/SoftMap/*OD*.png"
+        "valid": {
+            "images": "*.jpg",
+            "mask": "*.png"
         }
     }
 }
 
+def resize_image(file_path, output_size):
+    with Image.open(file_path) as img:
+        img = img.resize(output_size, Image.Resampling.LANCZOS)
+        if file_path.lower().endswith('.png'):
+            # If the file is a .png, we want to change the path to .bmp
+            file_path = file_path[:-4] + '.bmp'  # Change the extension
+            mode = 'wb'  # We'll be writing a new file
+        else:
+            mode = 'r+b' if os.path.exists(file_path) else 'w+b'
 
-def create_directories(data_dir):
-    categories = ['normal', 'glaucoma']
-    types = ['image', 'mask/cup', 'mask/disc']
-    phases = ['train', 'test', 'valid']
+        with open(file_path, mode) as f:
+            if file_path.lower().endswith('.bmp'):
+                img.save(f, format='BMP')
+            else:
+                img.save(f, format='JPEG')
 
-    for phase in phases:
-        for category in categories:
-            for dtype in types:
-                subdir = f"{phase}/{category}/{dtype}"
-                (Path(data_dir) / subdir).mkdir(parents=True, exist_ok=True)
+        # After saving as BMP, if the original was PNG, delete the PNG file
+        if mode == 'wb' and file_path.lower().endswith('.bmp'):
+            os.remove(file_path[:-4] + '.png')
 
+        print(f"Resized and saved {file_path}")
 
-def load_data(path, config):
-    results = []
-    for condition in ['healthy', 'glaucoma']:
-        paths = config[condition]
-        images = sorted(glob(os.path.join(path, paths["images"])))
-        cup_masks = sorted(glob(os.path.join(path, paths["cup_masks"])))
-        disc_masks = sorted(glob(os.path.join(path, paths["disc_masks"])))
-        results.append((images, cup_masks, disc_masks))
-    return tuple(results)
+def process_dataset(dataset_root, config):
+    for phase, types in config.items():
+        for data_type, pattern in types.items():
+            folder_path = os.path.join(dataset_root, phase, data_type)
+            for file_path in glob.glob(os.path.join(folder_path, pattern)):
+                resize_image(file_path, SIZE)
 
-
-def resize_data(images, cup_masks, disc_masks, save_path):
-    for idx, (x, y, z) in tqdm(enumerate(zip(images, cup_masks, disc_masks)), total=len(images)):
-        name = x.split("\\")[-1].split(".")[0]
-
-        x = cv2.imread(x, cv2.IMREAD_COLOR)
-        y = imageio.mimread(y)[0]
-        z = imageio.mimread(z)[0]
-
-        # Resize images
-        x_resized = cv2.resize(x, SIZE)
-        y_resized = cv2.resize(y, SIZE, interpolation=cv2.INTER_NEAREST)
-        z_resized = cv2.resize(z, SIZE, interpolation=cv2.INTER_NEAREST)
-
-        # Prepare save paths
-        image_path = os.path.join(save_path, "image", f"{name}_image.png")
-        cup_mask_path = os.path.join(save_path, "mask", "cup", f"{name}_cup_mask.png")
-        disc_mask_path = os.path.join(save_path, "mask", "disc", f"{name}_disc_mask.png")
-
-        # Save resized images and masks
-        cv2.imwrite(image_path, x_resized)
-        cv2.imwrite(cup_mask_path, y_resized)
-        cv2.imwrite(disc_mask_path, z_resized)
-
-
-def split_data(images, cup_masks, disc_masks, test_size=0.2, random_state=None):
-    train_images, test_images, train_cup_masks, test_cup_masks, train_disc_masks, test_disc_masks = train_test_split(
-        images, cup_masks, disc_masks, test_size=test_size, random_state=random_state, shuffle=True)
-
-    return (train_images, train_cup_masks, train_disc_masks), (test_images, test_cup_masks, test_disc_masks)
-
-
-def handle_data(images, cup_masks, disc_masks, directory_path, folder):
-    # Splitting data into train and test
-    ((train_images, train_cup_masks, train_disc_masks),
-     (test_images, test_cup_masks, test_disc_masks)) = split_data(images, cup_masks, disc_masks)
-
-    # Further splitting training data into train and validation
-    ((train_images, train_cup_masks, train_disc_masks),
-     (valid_images, valid_cup_masks, valid_disc_masks)) = split_data(train_images, train_cup_masks, train_disc_masks,
-                                                                     test_size=0.25)
-
-    print(
-        f"Train images: {len(train_images)} - Validation images: {len(valid_images)} - Test images: {len(test_images)} for {directory_path} {folder}")
-
-    # Resize and save data for train, validation, and test sets
-    resize_data(train_images, train_cup_masks, train_disc_masks, str(directory_path + "/train/" + folder))
-    resize_data(valid_images, valid_cup_masks, valid_disc_masks, str(directory_path + "/valid/" + folder))
-    resize_data(test_images, test_cup_masks, test_disc_masks, str(directory_path + "/test/" + folder))
-
-
-def define_dataset():
-    datasets_info = [
-        {
-            "data_path": r"D:\licenta\datasets\RIM-ONE r3 - Copy",
-            "config": dataset_configurations["RIM_ONE"],
-            "output_dir": "../datasets/rim-one-r3"
-        },
-        {
-            "data_path": r"D:\licenta\datasets\Drishti-GS - Copy",
-            "config": dataset_configurations["DRISHTI_GS"],
-            "output_dir": "../datasets/drishti-GS"
-        }
-    ]
-
-    for dataset in datasets_info:
-        data_path, config, output_dir = dataset.values()
-        (hi, hc, hd), (gi, gc, gd) = load_data(data_path, config)
-
-        create_directories(output_dir)
-        handle_data(hi, hc, hd, output_dir, "normal")
-        handle_data(gi, gc, gd, output_dir, "glaucoma")
-
+def main():
+    dataset_root = "../datasets"
+    for dataset_name, config in dataset_configurations.items():
+        full_path = os.path.join(dataset_root, dataset_name)
+        process_dataset(full_path, config)
 
 if __name__ == "__main__":
-    """ Seeding """
-    np.random.seed(42)
-
-    define_dataset()
+    main()
