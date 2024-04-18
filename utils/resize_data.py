@@ -1,9 +1,13 @@
-from PIL import Image
 import os
 import glob
+from PIL import Image
 
+# Hyperparameters etc.
 SIZE = (512, 512)
+BASE_PATH = os.path.abspath('../datasets/')
+OUTPUT_PATH = os.path.abspath('../datasets/')
 
+# Define the dataset structure
 dataset_configurations = {
     "refuge2": {
         "test": {
@@ -16,45 +20,39 @@ dataset_configurations = {
         },
         "valid": {
             "images": "*.jpg",
-            "mask": "*.png"
+            "mask": "*.bmp"
         }
     }
 }
 
-def resize_image(file_path, output_size):
-    with Image.open(file_path) as img:
-        img = img.resize(output_size, Image.Resampling.LANCZOS)
-        if file_path.lower().endswith('.png'):
-            # If the file is a .png, we want to change the path to .bmp
-            file_path = file_path[:-4] + '.bmp'  # Change the extension
-            mode = 'wb'  # We'll be writing a new file
-        else:
-            mode = 'r+b' if os.path.exists(file_path) else 'w+b'
 
-        with open(file_path, mode) as f:
-            if file_path.lower().endswith('.bmp'):
-                img.save(f, format='BMP')
+def resize_images(source_path, target_path, pattern, size, is_mask=False):
+    if not os.path.exists(target_path):
+        os.makedirs(target_path)
+    files = glob.glob(os.path.join(source_path, pattern))
+    print(f"Resizing files from {source_path} save them to {target_path}")
+    for file_path in files:
+        with Image.open(file_path) as img:
+            if is_mask:
+                img = img.resize(size, Image.NEAREST)  # Use nearest neighbor interpolation for masks
             else:
-                img.save(f, format='JPEG')
+                img = img.resize(size, Image.Resampling.LANCZOS)  # High-quality downsampling filter
+            img.save(os.path.join(target_path, os.path.basename(file_path)))
 
-        # After saving as BMP, if the original was PNG, delete the PNG file
-        if mode == 'wb' and file_path.lower().endswith('.bmp'):
-            os.remove(file_path[:-4] + '.png')
 
-        print(f"Resized and saved {file_path}")
+def process_datasets(base_path, output_base):
+    for dataset_name, configurations in dataset_configurations.items():
+        for phase, phase_configs in configurations.items():
+            for content_type, pattern in phase_configs.items():
+                source_dir = os.path.join(base_path, dataset_name, phase, content_type)
+                target_dir = os.path.join(output_base, f"{dataset_name}_resized", phase, content_type)
+                is_mask = content_type == "mask"
+                resize_images(source_dir, target_dir, pattern, SIZE, is_mask=is_mask)
 
-def process_dataset(dataset_root, config):
-    for phase, types in config.items():
-        for data_type, pattern in types.items():
-            folder_path = os.path.join(dataset_root, phase, data_type)
-            for file_path in glob.glob(os.path.join(folder_path, pattern)):
-                resize_image(file_path, SIZE)
 
 def main():
-    dataset_root = "../datasets"
-    for dataset_name, config in dataset_configurations.items():
-        full_path = os.path.join(dataset_root, dataset_name)
-        process_dataset(full_path, config)
+    process_datasets(BASE_PATH, OUTPUT_PATH)
+
 
 if __name__ == "__main__":
     main()

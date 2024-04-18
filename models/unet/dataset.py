@@ -23,7 +23,7 @@ class GlaucomaDataset(Dataset):
         mask_path = os.path.join(self.mask_dir, mask_name)
         image = np.array(Image.open(image_path).convert("RGB"))
         mask = np.array(Image.open(mask_path).convert("L"), dtype=np.int64)
-        mask[mask == 255.0] = 2  # white background
+        mask[mask == 255] = 2  # white background
         mask[mask == 128] = 1  # gray optic disc
         mask[mask == 0] = 0  # black optic cup
 

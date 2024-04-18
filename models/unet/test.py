@@ -1,11 +1,12 @@
 import albumentations as A
+import cv2
 import torch
 from albumentations.pytorch import ToTensorV2
 
 from model import UNET
 from utils import (
     load_checkpoint,
-    get_test_loader, apply_color_map, check_accuracy, save_predictions_as_imgs
+    get_test_loader, check_accuracy, save_predictions_as_imgs
 )
 
 # Hyperparameters etc.
@@ -26,7 +27,7 @@ def test_fn(loader, model):
 def main():
     test_transforms = A.Compose(
         [
-            A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
+            A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH, interpolation=cv2.INTER_NEAREST),
             A.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0],
