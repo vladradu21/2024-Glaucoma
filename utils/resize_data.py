@@ -9,7 +9,7 @@ OUTPUT_PATH = os.path.abspath('../datasets/')
 
 # Define the dataset structure
 dataset_configurations = {
-    "refuge2": {
+    "refuge2-big": {
         "test": {
             "images": "*.jpg",
             "mask": "*.bmp"
@@ -45,7 +45,7 @@ def process_datasets(base_path, output_base):
         for phase, phase_configs in configurations.items():
             for content_type, pattern in phase_configs.items():
                 source_dir = os.path.join(base_path, dataset_name, phase, content_type)
-                target_dir = os.path.join(output_base, f"{dataset_name}_resized", phase, content_type)
+                target_dir = os.path.join(output_base, f"{dataset_name[:-4]}", phase, content_type)
                 is_mask = content_type == "mask"
                 resize_images(source_dir, target_dir, pattern, SIZE, is_mask=is_mask)
 
