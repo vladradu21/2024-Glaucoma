@@ -107,8 +107,11 @@ def save_predictions_as_imgs(loader, model, folder="../../out/valid/", mode="val
         preds_color = apply_color_map(preds)
         true_color = apply_color_map(y.unsqueeze(1))
 
-        torchvision.utils.save_image(preds_color, f"{folder}/{mode}_{idx}_pred.png")
-        torchvision.utils.save_image(true_color, f"{folder}/{mode}_{idx}_true.png")
+        preds_color_with_padding = torch.nn.functional.pad(preds_color, pad=(1, 1, 1, 1), mode='constant', value=0)
+        true_color_with_padding = torch.nn.functional.pad(true_color, pad=(1, 1, 1, 1), mode='constant', value=0)
+
+        torchvision.utils.save_image(preds_color_with_padding, f"{folder}/{mode}_{idx}_pred.png")
+        torchvision.utils.save_image(true_color_with_padding, f"{folder}/{mode}_{idx}_true.png")
     model.train()
 
 

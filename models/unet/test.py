@@ -13,8 +13,8 @@ from utils import (
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 16
 NUM_WORKERS = 2
-IMAGE_HEIGHT = 512
-IMAGE_WIDTH = 512
+IMAGE_HEIGHT = 1024
+IMAGE_WIDTH = 1024
 TEST_IMG_DIR = "../../datasets/refuge2/test/images/"
 TEST_MASK_DIR = "../../datasets/refuge2/test/mask/"
 
@@ -38,6 +38,8 @@ def main():
     )
 
     model = UNET(in_channels=3, out_channels=3).to(DEVICE)
+    if torch.cuda.is_available() and torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model)
     load_checkpoint(torch.load("checkpoint/my_checkpoint.pth.tar"), model)
     model.eval()
 

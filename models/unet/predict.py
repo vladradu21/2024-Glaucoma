@@ -1,6 +1,7 @@
 import sys
 
 import albumentations as A
+import cv2
 import numpy as np
 import torch
 import torchvision
@@ -14,18 +15,23 @@ from utils import load_checkpoint, apply_color_map
 MODEL_PATH = './checkpoint/my_checkpoint.pth.tar'
 INPUT_IMAGE_DIR = '../../datasets/predict/'
 OUTPUT_IMAGE_DIR = '../../out/predict/'
+IMAGE_HEIGHT = 1024
+IMAGE_WIDTH = 1024
 
 
 class Predictor:
     def __init__(self, model_path, device='cuda'):
         self.device = device
-        self.model = UNET(in_channels=3, out_channels=3)
-        self.model.to(self.device)
+        self.model = UNET(in_channels=3, out_channels=3).to(self.device)
+
+        if torch.cuda.is_available():
+            self.model = torch.nn.DataParallel(self.model)
+
         load_checkpoint(torch.load(model_path, map_location=self.device), self.model)
         self.model.eval()
 
         self.transform = A.Compose([
-            A.Resize(height=512, width=512),
+            A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH, interpolation=cv2.INTER_NEAREST),
             A.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0],

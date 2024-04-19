@@ -3,7 +3,7 @@ import glob
 from PIL import Image
 
 # Hyperparameters etc.
-SIZE = (512, 512)
+SIZE = (1024, 1024)
 BASE_PATH = os.path.abspath('../datasets/')
 OUTPUT_PATH = os.path.abspath('../datasets/')
 

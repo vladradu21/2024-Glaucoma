@@ -21,8 +21,8 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 16
 NUM_EPOCHS = 50
 NUM_WORKERS = 2
-IMAGE_HEIGHT = 512
-IMAGE_WIDTH = 512
+IMAGE_HEIGHT = 1024
+IMAGE_WIDTH = 1024
 PIN_MEMORY = True
 LOAD_MODEL = False
 TRAIN_IMG_DIR = "../../datasets/refuge2/train/images/"
@@ -82,6 +82,8 @@ def main():
     )
 
     model = UNET(in_channels=3, out_channels=3).to(DEVICE)
+    if torch.cuda.is_available() and torch.cuda.device_count() > 1:
+        model = nn.DataParallel(model)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
