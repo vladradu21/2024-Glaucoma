@@ -1,6 +1,7 @@
 import os
 import glob
 from PIL import Image
+from tqdm import tqdm
 
 # Hyperparameters etc.
 SIZE = (1024, 1024)
@@ -30,8 +31,7 @@ def resize_images(source_path, target_path, pattern, size, is_mask=False):
     if not os.path.exists(target_path):
         os.makedirs(target_path)
     files = glob.glob(os.path.join(source_path, pattern))
-    print(f"Resizing files from {source_path} save them to {target_path}")
-    for file_path in files:
+    for file_path in tqdm(files, desc=f"Resizing files from {source_path}"):
         with Image.open(file_path) as img:
             if is_mask:
                 img = img.resize(size, Image.NEAREST)  # Use nearest neighbor interpolation for masks
