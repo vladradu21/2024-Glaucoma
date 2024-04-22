@@ -25,10 +25,10 @@ IMAGE_HEIGHT = 1024
 IMAGE_WIDTH = 1024
 PIN_MEMORY = True
 LOAD_MODEL = False
-TRAIN_IMG_DIR = "../../datasets/refuge2/train/images/"
-TRAIN_MASK_DIR = "../../datasets/refuge2/train/mask/"
-VAL_IMG_DIR = "../../datasets/refuge2/valid/images/"
-VAL_MASK_DIR = "../../datasets/refuge2/valid/mask/"
+TRAIN_IMG_DIR = "../../data/refuge2/train/images/"
+TRAIN_MASK_DIR = "../../data/refuge2/train/mask/"
+VAL_IMG_DIR = "../../data/refuge2/valid/images/"
+VAL_MASK_DIR = "../../data/refuge2/valid/mask/"
 
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):

@@ -13,7 +13,7 @@ from utils import load_checkpoint, apply_color_map
 
 # Hyperparameters etc.
 MODEL_PATH = './checkpoint/my_checkpoint.pth.tar'
-INPUT_IMAGE_DIR = '../../datasets/predict/'
+INPUT_IMAGE_DIR = '../../data/predict/'
 OUTPUT_IMAGE_DIR = '../../out/predict/'
 IMAGE_HEIGHT = 1024
 IMAGE_WIDTH = 1024

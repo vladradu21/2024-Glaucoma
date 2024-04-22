@@ -15,8 +15,8 @@ BATCH_SIZE = 16
 NUM_WORKERS = 2
 IMAGE_HEIGHT = 1024
 IMAGE_WIDTH = 1024
-TEST_IMG_DIR = "../../datasets/refuge2/test/images/"
-TEST_MASK_DIR = "../../datasets/refuge2/test/mask/"
+TEST_IMG_DIR = "../../data/refuge2/test/images/"
+TEST_MASK_DIR = "../../data/refuge2/test/mask/"
 
 
 def test_fn(loader, model):

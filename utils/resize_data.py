@@ -4,8 +4,8 @@ from PIL import Image
 
 # Hyperparameters etc.
 SIZE = (1024, 1024)
-BASE_PATH = os.path.abspath('../datasets/')
-OUTPUT_PATH = os.path.abspath('../datasets/')
+BASE_PATH = os.path.abspath('../data/')
+OUTPUT_PATH = os.path.abspath('../data/')
 
 # Define the dataset structure
 dataset_configurations = {
