@@ -2,7 +2,6 @@ import csv
 import os
 
 import numpy as np
-import torch
 from PIL import Image
 from tqdm import tqdm
 
@@ -18,7 +17,6 @@ from metrics import (
 # Hyperparameters etc.
 TRAIN_MASK_DIR = '../../data/refuge2/train/mask'
 CSV_TO_SAVE_DIR = '../../data/csv'
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def parse_dir(directory, csv_save_path):
