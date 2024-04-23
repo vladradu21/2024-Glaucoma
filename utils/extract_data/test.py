@@ -60,6 +60,16 @@ def save_image_with_diagonals(roi, output_base_path):
 def save_roi(roi, output_base_path):
     roi_rgb = Image.fromarray(roi).convert('RGB')
     roi_rgb.save(f"{output_base_path}_roi.jpg")
+    print(f"ROI image saved to {output_base_path}")
+
+
+def write_csv(data, csv_path):
+    with open(csv_path, 'w', newline='') as csvfile:
+        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerow(data)
+    print(f"Data has been written to {csv_path}")
 
 
 def main():
@@ -75,25 +85,21 @@ def main():
     image_array = np.array(image)
     roi = extract_roi(image_array)
 
+    i, s, n, t = calculate_isnt_areas(roi)
+    data = {
+        'name': input_image_name,
+        'CDR': calculate_cup_to_disc_ratio(roi),
+        'vCDR': calculate_vcdr(roi),
+        'hCDR': calculate_hcdr(roi),
+        'I': i,
+        'S': s,
+        'N': n,
+        'T': t,
+        'respectsISNT': i > s > n > t,
+        'NNR': round((i + s) / (n + t), 3)
+    }
     csv_save_path = os.path.join(CSV_TO_SAVE_DIR, f"{input_image_name[:-4]}.csv")
-    with open(csv_save_path, 'w', newline='') as csvfile:
-        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-
-        i, s, n, t = calculate_isnt_areas(roi)
-        writer.writerow({
-            'name': input_image_name,
-            'CDR': calculate_cup_to_disc_ratio(roi),
-            'vCDR': calculate_vcdr(roi),
-            'hCDR': calculate_hcdr(roi),
-            'I': i,
-            'S': s,
-            'N': n,
-            'T': t,
-            'respectsISNT': True if i > s > n > t else False,
-            'NNR': round((i + s) / (n + t), 3)})
-    print(f"Data has been written to {csv_save_path}")
+    write_csv(data, csv_save_path)
 
     save_roi(roi, output_image_path)
     save_image_with_hcdr_vcdr_lines(roi, output_image_path)
