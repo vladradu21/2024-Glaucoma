@@ -1,3 +1,5 @@
+import csv
+import os
 import sys
 
 import numpy as np
@@ -20,7 +22,7 @@ from metrics import (
 # Hyperparameters etc.
 INPUT_IMAGE_DIR = '../../out/predict/'
 OUTPUT_IMAGE_DIR = '../../out/roi/'
-CSV_TO_SAVE_DIR = '../../data/csv'
+CSV_TO_SAVE_DIR = '../../out/csv'
 
 
 def save_image_with_hcdr_vcdr_lines(roi, output_base_path):
@@ -73,14 +75,25 @@ def main():
     image_array = np.array(image)
     roi = extract_roi(image_array)
 
-    ratio = calculate_cup_to_disc_ratio(roi)
-    vcdr = calculate_vcdr(roi)
-    hcdr = calculate_hcdr(roi)
-    i, s, n, t = calculate_isnt_areas(roi)
-    isnt = True if i > s > n > t else False
-    nnr = round((i + s) / (n + t), 3)
+    csv_save_path = os.path.join(CSV_TO_SAVE_DIR, f"{input_image_name[:-4]}.csv")
+    with open(csv_save_path, 'w', newline='') as csvfile:
+        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
 
-    print(f"ratio: {ratio}, vcdr: {vcdr}, hcdr: {hcdr}, I: {i}, S: {s}, N: {n}, T: {t}, isnt: {isnt}, nnr: {nnr}")
+        i, s, n, t = calculate_isnt_areas(roi)
+        writer.writerow({
+            'name': input_image_name,
+            'CDR': calculate_cup_to_disc_ratio(roi),
+            'vCDR': calculate_vcdr(roi),
+            'hCDR': calculate_hcdr(roi),
+            'I': i,
+            'S': s,
+            'N': n,
+            'T': t,
+            'respectsISNT': True if i > s > n > t else False,
+            'NNR': round((i + s) / (n + t), 3)})
+    print(f"Data has been written to {csv_save_path}")
 
     save_roi(roi, output_image_path)
     save_image_with_hcdr_vcdr_lines(roi, output_image_path)
