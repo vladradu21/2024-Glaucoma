@@ -3,3 +3,4 @@
 /models/unet/checkpoint/
 /out/
 /.idea/
+/models/classification/checkpoint/
