@@ -6,7 +6,7 @@ GRAY_THRESHOLD = 254
 
 
 def get_diagnosis(image_name):
-    return 'glaucoma' if image_name.lower().startswith('g') else 'healthy'
+    return True if image_name.lower().startswith('g') else False
 
 
 def calculate_cup_to_disc_ratio(image_array):

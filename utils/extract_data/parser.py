@@ -41,7 +41,7 @@ def parse_dir(directory, csv_writer):
                 'T': t,
                 'respectsISNT': i > s > n > t,
                 'NNR': round((i + s) / (n + t), 3),
-                'diagnosis': diagnosis
+                'hasGlaucoma': diagnosis
             }
             csv_writer.writerow(data)
 
@@ -52,7 +52,7 @@ def main():
     csv_file_path = os.path.join(CSV_TO_SAVE_DIR, 'metrics.csv')
 
     with open(csv_file_path, 'w', newline='') as csvfile:
-        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR', 'diagnosis']
+        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR', 'hasGlaucoma']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
