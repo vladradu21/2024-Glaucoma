@@ -2,7 +2,9 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold, cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 # Hyperparameters etc.
 CSV_DIR = '../../data/csv'
@@ -26,7 +28,9 @@ def evaluate_models(x, y):
         "Logistic Regression": LogisticRegression(max_iter=1000),
         "Random Forest": RandomForestClassifier(),
         "SVM": SVC(),
-        "Gradient Boosting": GradientBoostingClassifier()
+        "Gradient Boosting": GradientBoostingClassifier(),
+        "Decision Tree": DecisionTreeClassifier(),
+        "K-Nearest Neighbors": KNeighborsClassifier()
     }
 
     kf = KFold(n_splits=5, shuffle=True)

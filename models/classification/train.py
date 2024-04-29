@@ -3,7 +3,9 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 from cross_validation import handle_data
 
@@ -17,7 +19,9 @@ def train_and_save_models(x, y, n_splits=5):
         "Logistic Regression": LogisticRegression(max_iter=1000),
         "Random Forest": RandomForestClassifier(),
         "SVM": SVC(),
-        "Gradient Boosting": GradientBoostingClassifier()
+        "Gradient Boosting": GradientBoostingClassifier(),
+        "Decision Tree": DecisionTreeClassifier(),
+        "K-Nearest Neighbors": KNeighborsClassifier()
     }
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
 

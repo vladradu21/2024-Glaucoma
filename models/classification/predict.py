@@ -13,7 +13,9 @@ def load_models():
         "Logistic_Regression_model.pkl",
         "Random_Forest_model.pkl",
         "SVM_model.pkl",
-        "Gradient_Boosting_model.pkl"
+        "Gradient_Boosting_model.pkl",
+        "Decision_Tree_model.pkl",
+        "K-Nearest_Neighbors_model.pkl"
     ]
     loaded_models = {model: joblib.load(f"{CHECKPOINT_DIR}/{model}") for model in models}
     return loaded_models
@@ -30,14 +32,15 @@ def make_prediction(input_data_path, models):
 
 def main():
     if len(sys.argv) != 2:
-        print('Usage: python test.py <input_image_csv>')
+        print('Usage: python predict.py <input_data_csv>')
         return
 
-    input_image_csv = sys.argv[1]
-    input_data_path = f"{CSV_DIR}/{input_image_csv}"
+    input_data_csv = sys.argv[1]
+    input_data_path = f"{CSV_DIR}/{input_data_csv}"
     models = load_models()
     prediction = make_prediction(input_data_path, models)
-    print(f"Predicted diagnosis: {prediction}")
+    diagnosis = "Glaucoma" if prediction else "Healthy"
+    print(f"Predicted diagnosis: {diagnosis}")
 
 
 if __name__ == "__main__":
