@@ -24,7 +24,9 @@ def load_models():
 def make_prediction(input_data_path, models):
     input_data = pd.read_csv(input_data_path)
     trim_data = input_data.drop('name', axis=1)
+    trim_data['respectsISNT'] = trim_data['respectsISNT'].astype(int)
     predictions = np.array([model.predict(trim_data) for model in models.values()])
+
     # Majority voting
     final_prediction = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=predictions)
     return final_prediction
