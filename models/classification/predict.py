@@ -3,6 +3,7 @@ import sys
 import joblib
 import numpy as np
 import pandas as pd
+import shap
 
 CSV_DIR = '../../out/csv'
 CHECKPOINT_DIR = 'checkpoint'
@@ -36,6 +37,29 @@ def trim_data(input_data_path):
     return trimmed_data
 
 
+def shap_explain(model_name, model, trimmed_data):
+    X = trimmed_data.astype(float)
+
+    # Initialize SHAP explainer based on the model type
+    if "Tree" in model_name or "Random_Forest" in model_name or "Gradient_Boosting" in model_name:
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(X)
+        shap.summary_plot(shap_values, X, plot_type="dot")
+
+    elif "Logistic_Regression" in model_name:
+        explainer = shap.LinearExplainer(model, X)
+        shap_values = explainer(X)
+        shap.plots.waterfall(shap_values[0])
+
+    elif "SVM" in model_name or "K-Nearest_Neighbors" in model_name:
+        explainer = shap.KernelExplainer(model.predict, shap.sample(X, 100))
+        shap_values = explainer.shap_values(X)
+        shap.summary_plot(shap_values, X, plot_type="bar")
+
+    else:
+        raise NotImplementedError(f"SHAP explainer not implemented for {model_name}")
+
+
 def main():
     if len(sys.argv) != 2:
         print('Usage: python predict.py <input_data_csv>')
@@ -49,6 +73,10 @@ def main():
     prediction = make_prediction(trimmed_data, models)
     diagnosis = "Glaucoma" if prediction else "Healthy"
     print(f"Predicted diagnosis: {diagnosis}")
+
+    # explain with shap
+    for model_name, model in models.items():
+        shap_explain(model_name, model, trimmed_data)
 
 
 if __name__ == "__main__":
