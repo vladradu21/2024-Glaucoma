@@ -4,6 +4,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import shap
+from matplotlib import pyplot as plt
 
 CSV_DIR = '../../out/csv'
 CHECKPOINT_DIR = 'checkpoint'
@@ -44,17 +45,23 @@ def shap_explain(model_name, model, trimmed_data):
     if "Tree" in model_name or "Random_Forest" in model_name or "Gradient_Boosting" in model_name:
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(X)
-        shap.summary_plot(shap_values, X, plot_type="dot")
+        shap.summary_plot(shap_values, X, plot_type="dot", show=False)
+        plt.title(f"{model_name} - SHAP Summary Plot")
+        plt.show()
 
     elif "Logistic_Regression" in model_name:
         explainer = shap.LinearExplainer(model, X)
         shap_values = explainer(X)
-        shap.plots.waterfall(shap_values[0])
+        shap.plots.waterfall(shap_values[0], show=False)
+        plt.title(f"{model_name} - SHAP Waterfall Plot")
+        plt.show()
 
     elif "SVM" in model_name or "K-Nearest_Neighbors" in model_name:
         explainer = shap.KernelExplainer(model.predict, shap.sample(X, 100))
         shap_values = explainer.shap_values(X)
-        shap.summary_plot(shap_values, X, plot_type="bar")
+        shap.summary_plot(shap_values, X, plot_type="bar", show=False)
+        plt.title(f"{model_name} - SHAP Summary Plot")
+        plt.show()
 
     else:
         raise NotImplementedError(f"SHAP explainer not implemented for {model_name}")
