@@ -19,7 +19,7 @@ IMAGE_HEIGHT = 1024
 IMAGE_WIDTH = 1024
 
 
-class Predictor:
+class Segmentation:
     def __init__(self, model_path, device='cuda'):
         self.device = device
         self.model = UNET(in_channels=3, out_channels=3).to(self.device)
@@ -40,7 +40,7 @@ class Predictor:
             ToTensorV2()
         ])
 
-    def predict(self, image_path):
+    def segment(self, image_path):
         image = Image.open(image_path).convert('RGB')
         image = np.array(image)
         transformed = self.transform(image=image)
@@ -56,15 +56,15 @@ class Predictor:
 
 def main():
     if len(sys.argv) != 2:
-        print('Usage: python predict.py <input_image_name>')
+        print('Usage: python segment.py <input_image_name>')
         return
 
     model_path = MODEL_PATH
     input_image_path = INPUT_IMAGE_DIR + sys.argv[1]
     output_image_path = OUTPUT_IMAGE_DIR + sys.argv[1]
 
-    predictor = Predictor(model_path)
-    prediction = predictor.predict(input_image_path)
+    segmentation = Segmentation(model_path)
+    prediction = segmentation.segment(input_image_path)
     torchvision.utils.save_image(prediction, output_image_path)
 
 

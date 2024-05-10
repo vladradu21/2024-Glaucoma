@@ -69,7 +69,7 @@ def shap_explain(model_name, model, trimmed_data):
 
 def main():
     if len(sys.argv) != 2:
-        print('Usage: python predict.py <input_data_csv>')
+        print('Usage: python classify.py <input_data_csv>')
         return
 
     input_data_csv = sys.argv[1]
