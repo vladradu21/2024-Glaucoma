@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import albumentations as A
 import cv2
@@ -8,13 +9,14 @@ import torchvision
 from PIL import Image
 from albumentations.pytorch import ToTensorV2
 
-from model import UNET
-from utils import load_checkpoint, apply_color_map
+from models.unet.model import UNET
+from models.unet.utils import load_checkpoint, apply_color_map
 
 # Hyperparameters etc.
-MODEL_PATH = './checkpoint/my_checkpoint.pth.tar'
-INPUT_IMAGE_DIR = '../../data/predict/'
-OUTPUT_IMAGE_DIR = '../../out/predict/'
+CURRENT_DIR = Path(__file__).parent
+MODEL_PATH = CURRENT_DIR / 'checkpoint' / 'my_checkpoint.pth.tar'
+INPUT_IMAGE_DIR = CURRENT_DIR.parent.parent / 'data' / 'predict'
+OUTPUT_IMAGE_DIR = CURRENT_DIR.parent.parent / 'out' / 'predict'
 IMAGE_HEIGHT = 1024
 IMAGE_WIDTH = 1024
 
@@ -54,18 +56,22 @@ class Segmentation:
         return preds_color
 
 
+def predict_mask(image_name):
+    model_path = MODEL_PATH
+    input_image_path = INPUT_IMAGE_DIR / image_name
+    output_image_path = OUTPUT_IMAGE_DIR / image_name
+
+    segmentation = Segmentation(model_path)
+    prediction = segmentation.segment(str(input_image_path))
+    torchvision.utils.save_image(prediction, str(output_image_path))
+
+
 def main():
     if len(sys.argv) != 2:
         print('Usage: python segment.py <input_image_name>')
         return
 
-    model_path = MODEL_PATH
-    input_image_path = INPUT_IMAGE_DIR + sys.argv[1]
-    output_image_path = OUTPUT_IMAGE_DIR + sys.argv[1]
-
-    segmentation = Segmentation(model_path)
-    prediction = segmentation.segment(input_image_path)
-    torchvision.utils.save_image(prediction, output_image_path)
+    predict_mask(str(sys.argv[1]))
 
 
 if __name__ == '__main__':

@@ -1,8 +1,11 @@
 import shutil
 from pathlib import Path
+from threading import Thread
 from tkinter import Tk, BOTH, TOP
 from tkinter import filedialog
 from tkinter import ttk
+
+from models.unet.segment import predict_mask
 
 DATA_PATH = "data/predict"
 
@@ -56,8 +59,15 @@ class Gui(Tk):
         self.predictButton.state(['!disabled'])
 
     def predictDiagnosis(self):
-        if self.selected_file_name:
-            self.newlabel.configure(text=f"A PDF report will be generated for {self.selected_file_name}")
+        self.newlabel.configure(text=f"A PDF report will be generated for {self.selected_file_name}")
+        # thread to prevent GUI from freezing
+        prediction_thread = Thread(target=self.run_prediction)
+        prediction_thread.start()
+
+    def run_prediction(self):
+        predict_mask(self.selected_file_name)
+
+        self.newlabel.configure(text="Done!")
 
 
 if __name__ == '__main__':

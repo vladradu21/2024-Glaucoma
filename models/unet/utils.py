@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torch.utils.data import DataLoader
 
-from dataset import GlaucomaDataset
+from models.unet.dataset import GlaucomaDataset
 
 
 def save_checkpoint(state, filename='checkpoint/my_checkpoint.pth.tar'):
