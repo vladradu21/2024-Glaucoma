@@ -1,17 +1,18 @@
 import csv
 import os
 import sys
+from pathlib import Path
 
 import numpy as np
 from PIL import Image
 
-from draw import (
+from utils.extract_data.draw import (
     h_cup_disc_indices,
     v_cup_disc_indices,
     draw_lines,
     draw_diagonals
 )
-from metrics import (
+from utils.extract_data.metrics import (
     extract_roi,
     calculate_cup_to_disc_ratio,
     calculate_vcdr,
@@ -20,9 +21,10 @@ from metrics import (
 )
 
 # Hyperparameters etc.
-INPUT_IMAGE_DIR = '../../out/predict/'
-OUTPUT_IMAGE_DIR = '../../out/roi/'
-CSV_TO_SAVE_DIR = '../../out/csv'
+CURRENT_DIR = Path(__file__).resolve().parent
+INPUT_IMAGE_DIR = CURRENT_DIR / '../../out/predict/'
+OUTPUT_IMAGE_DIR = CURRENT_DIR / '../../out/roi/'
+CSV_TO_SAVE_DIR = CURRENT_DIR / '../../out/csv/'
 
 
 def save_image_with_hcdr_vcdr_lines(roi, output_base_path):
@@ -81,7 +83,7 @@ def analyze_image(roi, input_image_name):
 
 
 def write_csv(data, image_name):
-    csv_path = os.path.join(CSV_TO_SAVE_DIR, f"{image_name[:-4]}.csv")
+    csv_path = os.path.join(CSV_TO_SAVE_DIR, f"{image_name}.csv")
 
     with open(csv_path, 'w', newline='') as csvfile:
         fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR']
@@ -103,7 +105,7 @@ def save_results(roi, image_name):
 
 
 def load_image(input_image_name):
-    input_image_path = INPUT_IMAGE_DIR + input_image_name
+    input_image_path = INPUT_IMAGE_DIR / input_image_name
     image = Image.open(input_image_path).convert('L')
     return image
 

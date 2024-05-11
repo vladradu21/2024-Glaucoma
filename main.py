@@ -6,6 +6,7 @@ from tkinter import filedialog
 from tkinter import ttk
 
 from models.unet.segment import predict_mask
+from utils.extract_data.extract import extract_data
 
 DATA_PATH = "data/predict"
 
@@ -66,6 +67,7 @@ class Gui(Tk):
 
     def run_prediction(self):
         predict_mask(self.selected_file_name)
+        extract_data(self.selected_file_name)
 
         self.newlabel.configure(text="Done!")
 
