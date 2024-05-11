@@ -63,28 +63,7 @@ def save_roi(roi, output_base_path):
     print(f"ROI image saved to {output_base_path}")
 
 
-def write_csv(data, csv_path):
-    with open(csv_path, 'w', newline='') as csvfile:
-        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerow(data)
-    print(f"Data has been written to {csv_path}")
-
-
-def main():
-    if len(sys.argv) != 2:
-        print('Usage: python test.py <input_image_name>')
-        return
-
-    input_image_name = sys.argv[1]
-    input_image_path = INPUT_IMAGE_DIR + input_image_name
-    output_image_path = OUTPUT_IMAGE_DIR + input_image_name[:-4]
-
-    image = Image.open(input_image_path).convert('L')
-    image_array = np.array(image)
-    roi = extract_roi(image_array)
-
+def analyze_image(roi, input_image_name):
     i, s, n, t = calculate_isnt_areas(roi)
     data = {
         'name': input_image_name,
@@ -98,12 +77,53 @@ def main():
         'respectsISNT': i > s > n > t,
         'NNR': round((i + s) / (n + t), 3)
     }
-    csv_save_path = os.path.join(CSV_TO_SAVE_DIR, f"{input_image_name[:-4]}.csv")
-    write_csv(data, csv_save_path)
+    return data
+
+
+def write_csv(data, image_name):
+    csv_path = os.path.join(CSV_TO_SAVE_DIR, f"{image_name[:-4]}.csv")
+
+    with open(csv_path, 'w', newline='') as csvfile:
+        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerow(data)
+    print(f"Data has been written to {csv_path}")
+
+
+def save_results(roi, image_name):
+    image_specific_dir = os.path.join(OUTPUT_IMAGE_DIR, image_name)
+    os.makedirs(image_specific_dir, exist_ok=True)
+
+    output_image_path = os.path.join(image_specific_dir, image_name)
 
     save_roi(roi, output_image_path)
     save_image_with_hcdr_vcdr_lines(roi, output_image_path)
     save_image_with_diagonals(roi, output_image_path)
+
+
+def load_image(input_image_name):
+    input_image_path = INPUT_IMAGE_DIR + input_image_name
+    image = Image.open(input_image_path).convert('L')
+    return image
+
+
+def extract_data(image_name):
+    image = load_image(image_name)
+    roi = extract_roi(np.array(image))
+    data = analyze_image(roi, image_name)
+
+    write_csv(data, image_name[:-4])
+    save_results(roi, image_name[:-4])
+
+
+def main():
+    if len(sys.argv) != 2:
+        print('Usage: python test.py <input_image_name>')
+        return
+
+    input_image_name = sys.argv[1]
+    extract_data(input_image_name)
 
 
 if __name__ == '__main__':
