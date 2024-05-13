@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from matplotlib import pyplot as plt
 CURRENT_DIR = Path(__file__).resolve().parent
 CSV_DIR = CURRENT_DIR / '../../out/csv'
 CHECKPOINT_DIR = CURRENT_DIR / 'checkpoint'
+PLOTS_DIR = CURRENT_DIR / '../../out/plots'
 
 
 def load_models():
@@ -41,7 +43,7 @@ def trim_data(input_data_path):
     return trimmed_data
 
 
-def shap_explain(model_name, model, trimmed_data):
+def shap_explain(model_name, model, trimmed_data, data_name):
     X = trimmed_data.astype(float)
 
     # Initialize SHAP explainer based on the model type
@@ -50,24 +52,28 @@ def shap_explain(model_name, model, trimmed_data):
         shap_values = explainer.shap_values(X)
         shap.summary_plot(shap_values, X, plot_type="dot", show=False)
         plt.title(f"{model_name} - SHAP Summary Plot")
-        plt.show()
 
     elif "Logistic_Regression" in model_name:
         explainer = shap.LinearExplainer(model, X)
         shap_values = explainer(X)
         shap.plots.waterfall(shap_values[0], show=False)
         plt.title(f"{model_name} - SHAP Waterfall Plot")
-        plt.show()
 
     elif "SVM" in model_name or "K-Nearest_Neighbors" in model_name:
         explainer = shap.KernelExplainer(model.predict, shap.sample(X, 100))
         shap_values = explainer.shap_values(X)
         shap.summary_plot(shap_values, X, plot_type="bar", show=False)
         plt.title(f"{model_name} - SHAP Summary Plot")
-        plt.show()
 
     else:
         raise NotImplementedError(f"SHAP explainer not implemented for {model_name}")
+
+    plots_specific_dir = os.path.join(PLOTS_DIR, data_name)
+    os.makedirs(plots_specific_dir, exist_ok=True)
+
+    plt.tight_layout(pad=0.5)
+    plt.savefig(f"{plots_specific_dir}/{model_name}.png")
+    plt.close()
 
 
 def predict_diagnosis(input_data_csv):
@@ -81,7 +87,8 @@ def predict_diagnosis(input_data_csv):
 
     # explain with shap
     for model_name, model in models.items():
-        shap_explain(model_name, model, trimmed_data)
+        model_name = model_name.replace("_model.pkl", "")
+        shap_explain(model_name, model, trimmed_data, input_data_csv[:-4])
 
 
 def main():
