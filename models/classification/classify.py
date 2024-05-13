@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import joblib
 import numpy as np
@@ -6,8 +7,10 @@ import pandas as pd
 import shap
 from matplotlib import pyplot as plt
 
-CSV_DIR = '../../out/csv'
-CHECKPOINT_DIR = 'checkpoint'
+# Set up correct paths dynamically
+CURRENT_DIR = Path(__file__).resolve().parent
+CSV_DIR = CURRENT_DIR / '../../out/csv'
+CHECKPOINT_DIR = CURRENT_DIR / 'checkpoint'
 
 
 def load_models():
@@ -67,12 +70,7 @@ def shap_explain(model_name, model, trimmed_data):
         raise NotImplementedError(f"SHAP explainer not implemented for {model_name}")
 
 
-def main():
-    if len(sys.argv) != 2:
-        print('Usage: python classify.py <input_data_csv>')
-        return
-
-    input_data_csv = sys.argv[1]
+def predict_diagnosis(input_data_csv):
     input_data_path = f"{CSV_DIR}/{input_data_csv}"
     trimmed_data = trim_data(input_data_path)
 
@@ -84,6 +82,15 @@ def main():
     # explain with shap
     for model_name, model in models.items():
         shap_explain(model_name, model, trimmed_data)
+
+
+def main():
+    if len(sys.argv) != 2:
+        print('Usage: python classify.py <input_data_csv>')
+        return
+
+    input_data_csv = sys.argv[1]
+    predict_diagnosis(input_data_csv)
 
 
 if __name__ == "__main__":
