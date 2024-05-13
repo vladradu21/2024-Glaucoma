@@ -7,6 +7,9 @@ import numpy as np
 import pandas as pd
 import shap
 from matplotlib import pyplot as plt
+from sympy.physics.control.control_plots import matplotlib
+
+matplotlib.use('agg')
 
 # Set up correct paths dynamically
 CURRENT_DIR = Path(__file__).resolve().parent
