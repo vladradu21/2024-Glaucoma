@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import subprocess
 
 import jinja2
 import pandas as pd
@@ -86,6 +87,9 @@ def save_pdf(rendered_html, pdf_path):
     }
 
     pdfkit.from_string(rendered_html, str(pdf_path), configuration=config, options=options)
+
+    # Open the PDF file
+    subprocess.run(['start', str(pdf_path)], shell=True, check=True)
 
 
 def create_pdf(image_name, diagnosis):

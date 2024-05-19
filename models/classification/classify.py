@@ -93,6 +93,8 @@ def predict_diagnosis(input_data_csv):
         model_name = model_name.replace("_model.pkl", "")
         shap_explain(model_name, model, trimmed_data, input_data_csv[:-4])
 
+    return diagnosis
+
 
 def main():
     if len(sys.argv) != 2:

@@ -70,8 +70,9 @@ class Gui(Tk):
     def run_prediction(self):
         predict_mask(self.selected_file_name)
         extract_data(self.selected_file_name)
-        predict_diagnosis(self.selected_file_name[:-4] + '.csv')
-        create_pdf(self.selected_file_name, "merge")
+        diagnosis = predict_diagnosis(self.selected_file_name[:-4] + '.csv')
+        create_pdf(self.selected_file_name, diagnosis)
+        print("Done!")
 
         self.newlabel.configure(text="Done!")
 
