@@ -70,7 +70,7 @@ def render_html(template_env, image_name, image_path, mask_path, roi_images, csv
         image_name=image_name,
         image_path=f'file:///{image_path}',
         mask_path=f'file:///{mask_path}',
-        roi_images=[f'file:///{img}' for img in roi_images],
+        roi_images=[f'file:///{img}' for img in roi_images[::-1]],
         csv_headers=csv_headers,
         csv_data=csv_data,
         plots=[f'file:///{plot}' for plot in plots],
