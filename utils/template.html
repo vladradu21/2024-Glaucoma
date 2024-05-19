@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report for {{ image_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .images img {
+            width: 45%;
+            margin-right: 5%;
+            float: left;
+        }
+
+        .images:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .roi-images img {
+            width: 30%;
+            float: left;
+            margin-right: 3.333%;
+        }
+
+        .roi-images:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<h1>Report for {{ image_name }}</h1>
+
+<div class="images">
+    <img src="{{ image_path }}" alt="Original Image">
+    <img src="{{ mask_path }}" alt="Mask Image">
+</div>
+
+<div class="roi-images">
+    {% for roi_image in roi_images %}
+    <img src="{{ roi_image }}" alt="ROI Image">
+    {% endfor %}
+</div>
+
+<table class="table">
+    <thead>
+    <tr>
+        {% for header in csv_headers %}
+        <th>{{ header }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in csv_data %}
+    <tr>
+        {% for item in row %}
+        <td>{{ item }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2>Plots</h2>
+{% for plot in plots %}
+<img src="{{ plot }}" alt="Plot Image" style="width: 100%;">
+{% endfor %}
+</body>
+</html>
