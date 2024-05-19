@@ -20,7 +20,7 @@ def get_csv_data(csv_path):
     return df.columns.tolist(), df.values.tolist()
 
 
-def create_pdf(image_name):
+def create_pdf(image_name, diagnosis):
     template_loader = jinja2.FileSystemLoader(searchpath="./")
     template_env = jinja2.Environment(loader=template_loader)
     template = template_env.get_template('template.html')
@@ -63,7 +63,8 @@ def create_pdf(image_name):
         roi_images=[f'file:///{img}' for img in roi_images],
         csv_headers=csv_headers,
         csv_data=csv_data,
-        plots=[f'file:///{plot}' for plot in plots]
+        plots=[f'file:///{plot}' for plot in plots],
+        diagnosis=diagnosis
     )
 
     # Create PDF
@@ -82,7 +83,7 @@ def main():
         print('Usage: python script.py <input_image_name>')
         return
     input_image_name = sys.argv[1]
-    create_pdf(input_image_name)
+    create_pdf(input_image_name, "Glaucoma")
 
 
 if __name__ == '__main__':
