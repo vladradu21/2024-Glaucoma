@@ -5,9 +5,10 @@ from tkinter import Tk, BOTH, TOP
 from tkinter import filedialog
 from tkinter import ttk
 
+from models.classification.classify import predict_diagnosis
 from models.unet.segment import predict_mask
 from utils.extract_data.extract import extract_data
-from models.classification.classify import predict_diagnosis
+from utils.pdf_builder import create_pdf
 
 DATA_PATH = "data/predict"
 
@@ -70,6 +71,7 @@ class Gui(Tk):
         predict_mask(self.selected_file_name)
         extract_data(self.selected_file_name)
         predict_diagnosis(self.selected_file_name[:-4] + '.csv')
+        create_pdf(self.selected_file_name, "merge")
 
         self.newlabel.configure(text="Done!")
 

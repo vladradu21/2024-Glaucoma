@@ -1,18 +1,19 @@
-import os
 import sys
+from pathlib import Path
 
 import jinja2
 import pandas as pd
 import pdfkit
 
-# Hyperparameters etc.
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-IMAGE_DIR = os.path.join(BASE_DIR, '../data/predict/')
-MASK_DIR = os.path.join(BASE_DIR, '../out/predict/')
-ROI_DIR = os.path.join(BASE_DIR, '../out/roi/')
-CSV_DIR = os.path.join(BASE_DIR, '../out/csv/')
-PLOTS_DIR = os.path.join(BASE_DIR, '../out/plots/')
-PDF_DIR = os.path.join(BASE_DIR, '../out/pdfs/')
+# Base directories
+CURRENT_DIR = Path(__file__).parent
+IMAGE_DIR = CURRENT_DIR / '../data/predict'
+MASK_DIR = CURRENT_DIR / '../out/predict'
+ROI_DIR = CURRENT_DIR / '../out/roi'
+CSV_DIR = CURRENT_DIR / '../out/csv'
+PLOTS_DIR = CURRENT_DIR / '../out/plots'
+PDF_DIR = CURRENT_DIR / '../out/pdfs'
+TEMPLATE_DIR = CURRENT_DIR / '../utils'
 
 
 def get_csv_data(csv_path):
@@ -21,25 +22,25 @@ def get_csv_data(csv_path):
 
 
 def get_file_paths(image_name):
-    image_path = os.path.join(IMAGE_DIR, image_name)
-    mask_path = os.path.join(MASK_DIR, image_name)
-    roi_dir = os.path.join(ROI_DIR, image_name[:-4])
-    plots_dir = os.path.join(PLOTS_DIR, image_name[:-4])
-    csv_path = os.path.join(CSV_DIR, image_name.replace('.jpg', '.csv'))
+    image_path = IMAGE_DIR / image_name
+    mask_path = MASK_DIR / image_name
+    roi_dir = ROI_DIR / image_name[:-4]
+    plots_dir = PLOTS_DIR / image_name[:-4]
+    csv_path = CSV_DIR / image_name.replace('.jpg', '.csv')
 
     return image_path, mask_path, roi_dir, plots_dir, csv_path
 
 
 def check_directories(roi_dir, plots_dir, csv_path):
-    if not os.path.exists(roi_dir):
+    if not roi_dir.exists():
         print(f"ROI directory {roi_dir} does not exist.")
         return False
 
-    if not os.path.exists(plots_dir):
+    if not plots_dir.exists():
         print(f"Plots directory {plots_dir} does not exist.")
         return False
 
-    if not os.path.exists(csv_path):
+    if not csv_path.exists():
         print(f"CSV file {csv_path} does not exist.")
         return False
 
@@ -47,11 +48,11 @@ def check_directories(roi_dir, plots_dir, csv_path):
 
 
 def collect_images(roi_dir, plots_dir):
-    roi_images = [os.path.join(roi_dir, img) for img in os.listdir(roi_dir)]
-    plots = [os.path.join(plots_dir, plot) for plot in os.listdir(plots_dir)]
+    roi_images = [roi_dir / img for img in roi_dir.iterdir()]
+    plots = [plots_dir / plot for plot in plots_dir.iterdir()]
 
-    roi_images = [img.replace("\\", "/") for img in roi_images]
-    plots = [plot.replace("\\", "/") for plot in plots]
+    roi_images = [str(img).replace("\\", "/") for img in roi_images]
+    plots = [str(plot).replace("\\", "/") for plot in plots]
 
     return roi_images, plots
 
@@ -59,8 +60,8 @@ def collect_images(roi_dir, plots_dir):
 def render_html(template_env, image_name, image_path, mask_path, roi_images, csv_headers, csv_data, plots, diagnosis):
     template = template_env.get_template('template.html')
 
-    image_path = image_path.replace("\\", "/")
-    mask_path = mask_path.replace("\\", "/")
+    image_path = str(image_path).replace("\\", "/")
+    mask_path = str(mask_path).replace("\\", "/")
     roi_images = [img.replace("\\", "/") for img in roi_images]
     plots = [plot.replace("\\", "/") for plot in plots]
 
@@ -71,7 +72,7 @@ def render_html(template_env, image_name, image_path, mask_path, roi_images, csv
         roi_images=[f'file:///{img}' for img in roi_images],
         csv_headers=csv_headers,
         csv_data=csv_data,
-        plots=[f'file:///{plot}' for plot in plots[:-1]],
+        plots=[f'file:///{plot}' for plot in plots],
         diagnosis=diagnosis
     )
     return rendered_html
@@ -84,7 +85,7 @@ def save_pdf(rendered_html, pdf_path):
         'enable-local-file-access': None
     }
 
-    pdfkit.from_string(rendered_html, pdf_path, configuration=config, options=options)
+    pdfkit.from_string(rendered_html, str(pdf_path), configuration=config, options=options)
 
 
 def create_pdf(image_name, diagnosis):
@@ -96,13 +97,13 @@ def create_pdf(image_name, diagnosis):
     roi_images, plots = collect_images(roi_dir, plots_dir)
     csv_headers, csv_data = get_csv_data(csv_path)
 
-    template_loader = jinja2.FileSystemLoader(searchpath="./")
+    template_loader = jinja2.FileSystemLoader(searchpath=str(TEMPLATE_DIR))
     template_env = jinja2.Environment(loader=template_loader)
 
     rendered_html = render_html(template_env, image_name, image_path, mask_path, roi_images, csv_headers, csv_data,
                                 plots, diagnosis)
 
-    pdf_path = os.path.join(PDF_DIR, f"{image_name.replace('.jpg', '.pdf')}")
+    pdf_path = PDF_DIR / f"{image_name.replace('.jpg', '.pdf')}"
     save_pdf(rendered_html, pdf_path)
 
 
