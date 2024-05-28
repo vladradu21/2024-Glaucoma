@@ -77,7 +77,7 @@ def analyze_image(roi, input_image_name):
         'N': n,
         'T': t,
         'respectsISNT': i > s > n > t,
-        'NNR': round((i + s) / (n + t), 3)
+        'NRR': round((i + s) / (n + t), 3)
     }
     return data
 
@@ -86,7 +86,7 @@ def write_csv(data, image_name):
     csv_path = os.path.join(CSV_TO_SAVE_DIR, f"{image_name}.csv")
 
     with open(csv_path, 'w', newline='') as csvfile:
-        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NNR']
+        fieldnames = ['name', 'CDR', 'vCDR', 'hCDR', 'I', 'S', 'N', 'T', 'respectsISNT', 'NRR']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerow(data)

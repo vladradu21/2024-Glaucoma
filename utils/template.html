@@ -6,7 +6,7 @@
     <title>Report for {{ image_name }}</title>
     <style>
         body {
-            font-family: "Times New Roman", sans-serif;
+            font-family: "Arial", sans-serif;
             margin: 20px;
         }
 
@@ -60,6 +60,15 @@
             background-color: #f2f2f2;
         }
 
+        .formulas {
+            text-align: center;
+            font-family: "Arial", sans-serif;
+        }
+
+        .formulas div {
+            margin-bottom: 10px;
+        }
+
         .new-page {
             page-break-before: always;
         }
@@ -105,6 +114,16 @@
         {% endfor %}
         </tbody>
     </table>
+</div>
+
+<div class="section">
+    <div class="formulas">
+        <div>CDR = Area of the Cup / Area of the Disc</div>
+        <div>vCDR = Vertical Area of the Cup Diameter / Vertical Area of the Disc Diameter</div>
+        <div>hCDR = Horizontal Area of the Cup Diameter / Horizontal Area of the Disc Diameter</div>
+        <div>ISNT = Inferior > Superior > Nasal > Temporal</div>
+        <div>NRR = ((Inferior + Superior) / (Nasal + Temporal))</div>
+    </div>
 </div>
 
 <div class="section">
