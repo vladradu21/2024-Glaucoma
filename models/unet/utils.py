@@ -60,7 +60,6 @@ def get_loaders(
 def check_accuracy(loader, model, device="cuda"):
     num_correct = 0
     num_pixels = 0
-    dice_score = 0
     model.eval()
 
     with torch.no_grad():
@@ -71,10 +70,8 @@ def check_accuracy(loader, model, device="cuda"):
             preds = torch.argmax(preds, dim=1)
             num_correct += (preds == y).sum()
             num_pixels += torch.numel(preds)
-            dice_score += (2 * (preds * y).sum()) / ((preds + y).sum() + 1e-8)
 
     print(f"Got {num_correct}/{num_pixels} with acc {num_correct / num_pixels * 100:.2f}")
-    print(f"Dice score: {dice_score / len(loader)}")
 
 
 COLOR_MAP = {
