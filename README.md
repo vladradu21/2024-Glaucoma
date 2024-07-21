@@ -1,29 +1,81 @@
+<h1>Automated Detection of Glaucoma Using Artificial Intelligence</h1>
+
+
+
+
 <h2>Abstract</h2>
-<par> Glaucoma is the second leading cause of loss of vision in the world. Examining the head of optic nerve (cup-to-disc ratio) among other various metrics is crucial for diagnosing glaucoma. </par>
+<par> Glaucoma is an ophthalmologic condition that damages the optic nerve head, specifically the optic cup and the optic disc, which can lead to blindness. It is the second most common cause of vision loss. Examining the optic nerve head regions, including the neuroretinal rim area (obtained by subtracting the cup from the disc), is critical for diagnosis. </par>
+
+
+
 
 <h2>Introduction</h2>
-<par> This code adopts a two-step approach for detecting glaucoma: Initially, AI identifies the contours of the optic cup and disc, then uses this data to derive an automated decision rule for glaucoma detection in the second step. </par>
+<par> This project presents an automated glaucoma detection solution using fundus images and artificial intelligence. The solution uses a two-step approach: AI initially identifies the contours of the optic cup and disc, then uses this data to derive an automated decision rule for glaucoma detection. </par>
 
-<br><br>
+
+
+
 <h2>First Step: Segmentation</h2>
+<par> The initial step uses a UNET architecture with three output channels to process fundus eye images, segmenting the optic cup (black) and optic disc (gray) to generate a mask. </par>
 
-![unet-proc](https://github.com/vladradu21/2024-Glaucoma/assets/117584846/6baaf580-3f22-4eb7-9537-c68a489f50df)
+![unet](https://github.com/user-attachments/assets/cdb9cc0c-884d-47c7-aff6-099f75061a95)
 
-<par> The initial step employs a UNET architecture with three output channels, processing the fundus eye image to segment the optic cup (black) and the optic disc (gray) to generate the mask. </par>
 
-<br>
+
+
 <h2>Second Step: Classification</h2>
-<par> This step unfolds in two distinct phases: </par>
+<par> This step unfolds into three distinct phases: </par>
 
-<h3>Phase One: Metric Calculation</h3>
 
-![glaucoma-metrics](https://github.com/vladradu21/2024-Glaucoma/assets/117584846/69804464-34d2-4b99-8cf1-afe3bc4bfe4a)
 
-<par> Metrics such as the cup to disc ratio (CDR), horizontal/vertical cup to disc diameter (hCDR/vCDR), and neuroretinal rim area ratio (NRR) based on the ISNT areas are computed from the ROI and recorded in a CSV file. </par>
+<h3>Phase One: Extract Metrics</h3>
+<par> Metrics such as the cup to disc ratio (CDR), horizontal/vertical cup to disc diameter (hCDR/vCDR), and neuroretinal rim area ratio (NRR) based on the ISNT (inferior, superior, nasal, temporal) areas are computed from the ROI and recorded in a CSV file. </par>
 
-<h3>Phase Two: Classification</h3>
+![roi-metrics](https://github.com/user-attachments/assets/2733f7db-fb51-4b88-b71a-1ecdb84ab440)
 
-<par> A classification model is defined and trained using the metrics and ground truth (diagnosis) from fundus eye images evaluated by expert medics. This model is then used to make predictions. </par>
 
-<br><br>
+
+<h3>Phase Two: Choose Classification Models</h3>
+<par> Several classification models are used: linear-based, decision tree-based, and kernel-based. Each model generates a prediction, and the final diagnosis is determined using majority voting. </par>
+
+
+
+<h3>Phase Three: Explainability</h3>
+Shapley values are used to generate explainability plots for each of the classification models included. These plots help in understanding the contribution of each feature to the final prediction.
+
+![Gradient_Boosting](https://github.com/user-attachments/assets/39818912-2c72-4454-8354-e8359713bdbf)
+
+
+
+
+<h2>Dataset</h2>
+<par> The REFUGE2 dataset, a well-known dataset for segmentation, is used. It can be downloaded from Kaggle.</par>
+<href>https://www.kaggle.com/datasets/victorlemosml/refuge2?rvi=1</href>
+
+
+
+
+<h2>Validation</h2>
+<par>The segmentation model was trained for 50 epochs, achieving an accuracy of 99.62% based on correctly identified pixels. For the classification models, cross-validation was used, with accuracy ranging from 89.58% to 92.92%.</par>
+
+
+
+
+<h2>Tests</h2>
+<par>After execution, a PDF report is generated based on a selected image from the local computer. This report includes the input image, segmented mask, extracted ROI, extracted metrics, and the predicted diagnosis. Additional pages contain explainability plots of the classification metrics used.</par>
+
+![pdf](https://github.com/user-attachments/assets/c5accedc-5b4e-465e-8409-c4bb005038d7)
+
+
+
+
+
 <h2>Setup</h2>
+1. Clone the repository
+
+2. Create a virtual environment (Python 3.10 recommended)
+
+3. Install the required packages
+
+The checkpoint files for the classification and segmentation models, as well as the preprocessed dataset, can be found on my public drive here
+<href>https://drive.google.com/drive/folders/1yVPe3TwKF1-Krmc2WfJJNfsAUKlnLWej?usp=sharing</href>
